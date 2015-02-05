@@ -46,9 +46,10 @@ class User(UserId):
     """ Object representing http://docs.intercom.io/#UserData).  """
 
     attributes = (
-        'user_id', 'email', 'name', 'created_at', 'custom_data',
-        'last_seen_ip', 'last_seen_user_agent', 'companies',
-        'last_impression_at', 'last_request_at', 'unsubscribed_from_emails')
+        'user_id', 'email', 'id', 'signed_up_at', 'name', 'last_seen_ip',
+        'custom_attributes', 'last_seen_user_agent', 'companies',
+        'last_request_at', 'unsubscribed_from_emails',
+        'update_last_request_at', 'new_session')
 
     @classmethod
     def find(cls, user_id=None, email=None):
@@ -353,47 +354,47 @@ class User(UserId):
             raise ValueError("companies must be set as a list")
 
     @property
-    def custom_data(self):
-        """ Returns a CustomData object for this User.
+    def custom_attributes(self):
+        """ Returns a CustomAttributes object for this User.
 
         >>> users = User.all()
-        >>> custom_data = users[0].custom_data
-        >>> type(custom_data)
-        <class 'intercom.user.CustomData'>
-        >>> custom_data['monthly_spend']
+        >>> custom_attributes = users[0].custom_attributes
+        >>> type(custom_attributes)
+        <class 'intercom.user.CustomAttributes'>
+        >>> custom_attributes['monthly_spend']
         155.5
 
         """
-        data = dict.get(self, 'custom_data', None)
-        if not isinstance(data, CustomData):
-            data = CustomData(data)
-            dict.__setitem__(self, 'custom_data', data)
+        data = dict.get(self, 'custom_attributes', None)
+        if not isinstance(data, CustomAttributes):
+            data = CustomAttributes(data)
+            dict.__setitem__(self, 'custom_attributes', data)
         return data
 
-    @custom_data.setter
-    def custom_data(self, custom_data):
-        """ Sets the CustomData for this User.
+    @custom_attributes.setter
+    def custom_attributes(self, custom_attributes):
+        """ Sets the CustomAttributes for this User.
 
         >>> user = User(email="somebody@example.com")
-        >>> user.custom_data = { 'max_monthly_spend': 200 }
-        >>> type(user.custom_data)
-        <class 'intercom.user.CustomData'>
+        >>> user.custom_attributes = { 'max_monthly_spend': 200 }
+        >>> type(user.custom_attributes)
+        <class 'intercom.user.CustomAttributes'>
         >>> user.save()
-        >>> len(user.custom_data)
+        >>> len(user.custom_attributes)
         3
 
         """
-        if not isinstance(custom_data, CustomData):
-            custom_data = CustomData(custom_data)
-        self['custom_data'] = custom_data
+        if not isinstance(custom_attributes, CustomAttributes):
+            custom_attributes = CustomAttributes(custom_attributes)
+        self['custom_attributes'] = custom_attributes
 
 
-class CustomData(dict):
+class CustomAttributes(dict):
     """ A dict that limits keys to strings, and values to real numbers
     and strings.
 
-    >>> from intercom.user import CustomData
-    >>> data = CustomData()
+    >>> from intercom.user import CustomAttributes
+    >>> data = CustomAttributes()
     >>> data['a_dict'] = {}
     Traceback (most recent call last):
         ...
@@ -415,7 +416,7 @@ class CustomData(dict):
                 "custom data only allows string and real number values")
         if not isinstance(key, basestring):
             raise ValueError("custom data only allows string keys")
-        super(CustomData, self).__setitem__(key, value)
+        super(CustomAttributes, self).__setitem__(key, value)
 
 
 class SocialProfile(dict):
@@ -492,6 +493,7 @@ class Company(dict):
     def created_at(self, value):
         """ Sets the timestamp when this Company was created. """
         self['created_at'] = value
+
 
 class LocationData(dict):
     """ Object representing a user's location data

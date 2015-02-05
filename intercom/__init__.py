@@ -42,8 +42,7 @@ from .intercom import ResourceNotFound
 from .intercom import ServerError
 from .intercom import ServiceUnavailableError
 
-from .impression import Impression
-from .message_thread import MessageThread
+from .conversation import Conversation
 from .note import Note
 from .user import User
 from .tag import Tag
@@ -51,6 +50,6 @@ from .events import Event
 
 __all__ = [
     'AuthenticationError', 'BadGatewayError', 'Intercom', 'ResourceNotFound',
-    'ServerError', 'ServiceUnavailableError', 'Impression', 'MessageThread',
+    'ServerError', 'ServiceUnavailableError', 'Conversation',
     'Note', 'User', 'Tag', 'Event'
 ]

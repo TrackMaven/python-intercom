@@ -19,8 +19,7 @@ from intercom import ServerError
 from intercom import ServiceUnavailableError
 from intercom import Intercom
 from intercom import User
-from intercom import MessageThread
-from intercom import Impression
+from intercom import Conversation
 from intercom import Note
 from nose.tools import nottest
 from nose.tools import eq_
@@ -45,20 +44,20 @@ def fixture(fixture):
 
 @httpretty.activate
 def test_users():
-    httpretty.register_uri(get, r(r"/v1/users"), body=fixture('v1-users'))
+    httpretty.register_uri(get, r(r"/users"), body=fixture('v1-users'))
     ok_(len(User.all()) > 0)
 
 
 @httpretty.activate
 def test_user():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email="),
+        get, r(r"/users\?email="),
         body=fixture('v1-user'), match_querystring=True)
     user = User.find(email='somebody@example.com')
     eq_(user.name, 'Somebody')
 
     httpretty.register_uri(
-        get, r(r"/v1/users\?user_id="),
+        get, r(r"/users\?user_id="),
         body=fixture('v1-user'), match_querystring=True)
     user = User.find_by_user_id('123')
     eq_(user.name, 'Somebody')
@@ -68,7 +67,7 @@ def test_user():
 @raises(ResourceNotFound)
 def test_not_found():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=not-found"),
+        get, r(r"/users\?email=not-found"),
         status=404, match_querystring=True)
     User.find(email='not-found@example.com')
 
@@ -77,7 +76,7 @@ def test_not_found():
 @raises(ResourceNotFound)
 def test_not_found_qs():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=not-found"),
+        get, r(r"/users\?email=not-found"),
         body=fixture('v1-user_not_found'), status=404, match_querystring=True)
     User.find(email='not-found@example.com')
 
@@ -86,7 +85,7 @@ def test_not_found_qs():
 @raises(ServerError)
 def test_server_error():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=server-error"),
+        get, r(r"/users\?email=server-error"),
         status=500, match_querystring=True)
     User.find(email='server-error@example.com')
 
@@ -95,7 +94,7 @@ def test_server_error():
 @raises(ServerError)
 def test_server_error_qs():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=server-error"),
+        get, r(r"/users\?email=server-error"),
         body=fixture('v1-user_server_error'), status=500,
         match_querystring=True)
     User.find(email='server-error@example.com')
@@ -105,7 +104,7 @@ def test_server_error_qs():
 @raises(AuthenticationError)
 def test_bad_api_key():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=authentication-error"),
+        get, r(r"/users\?email=authentication-error"),
         status=401, match_querystring=True)
     Intercom.app_id = 'bad-app-id'
     Intercom.api_key = 'bad-secret-key'
@@ -113,11 +112,11 @@ def test_bad_api_key():
 
 
 @httpretty.activate
-def test_message_threads():
+def test_conversations():
     httpretty.register_uri(
-        get, r(r"/v1/users/message_threads\?email=somebody"),
+        get, r(r"/users/message_threads\?email=somebody"),
         body=fixture('v1-users-message_threads'), match_querystring=True)
-    thread = MessageThread.find_all(email='somebody@example.com')[0]
+    thread = Conversation.find_all(email='somebody@example.com')[0]
     for attr in ['thread_id', 'read', 'messages', 'created_at', 'updated_at']:
         ok_(getattr(thread, attr))
 
@@ -126,29 +125,19 @@ def test_message_threads():
 @httpretty.activate
 def test_message_thread():
     httpretty.register_uri(
-        get, r(r"/v1/users/message_threads\?email=somebody"),
+        get, r(r"/users/message_threads\?email=somebody"),
         body=fixture('v1-users-message_threads'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users/message_threads"),
+        get, r(r"/users/message_threads"),
         body=fixture('v1-users-message_thread'))
-    thread = MessageThread.find_all(email='somebody@example.com')[0]
+    thread = Conversation.find_all(email='somebody@example.com')[0]
     thread.mark_as_read()
-
-
-@httpretty.activate
-def test_impression():
-    httpretty.register_uri(
-        post, r(r"/v1/users/impressions"),
-        body=fixture('v1-users-impressions'))
-    impression = Impression.create(email='somebody@example.com')
-    ok_(impression.unread_messages > 0)
-    # eq_(impression.email, 'somebody@example.com')
 
 
 @httpretty.activate
 def test_note():
     httpretty.register_uri(
-        post, r(r"/v1/users/notes"),
+        post, r(r"/users/notes"),
         body=fixture('v1-users-note'))
     note = Note.create(body="This is a note", email='somebody@example.com')
     eq_(note.html, "<p>This is a note</p>")
@@ -160,7 +149,7 @@ def test_note():
 def test_endpoints():
     # FakeWeb.allow_net_connect = %r(127.0.0.7)
     httpretty.register_uri(
-        get, r(r"/v1/users\?email="),
+        get, r(r"/users\?email="),
         body=fixture('v1-user'), match_querystring=True)
     Intercom.endpoints = ("http://127.0.0.7", "https://api.intercom.io")
     user = User.find(email='somebody@example.com')
@@ -187,7 +176,7 @@ def test_unreachable_endpoints():
 @raises(ServiceUnavailableError)
 def test_unreachable():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email="),
+        get, r(r"/users\?email="),
         status=503, match_querystring=True)
     User.find(email='somebody@example.com')
 
@@ -212,7 +201,7 @@ def test_bad_gateway_endpoints():
 @raises(BadGatewayError)
 def test_bad_gateway():
     httpretty.register_uri(
-        get, r(r"/v1/users\?email="),
+        get, r(r"/users\?email="),
         status=502, match_querystring=True)
     User.find(email='somebody@example.com')
 
@@ -229,71 +218,71 @@ def test_doctest():
         return (200, headers, fixture('v1-user'))
 
     httpretty.register_uri(
-        get, r(r'/v1/users$'),
+        get, r(r'/users$'),
         body=fixture('v1-users'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r'/v1/users\?page=1'),
+        get, r(r'/users\?page=1'),
         body=fixture('v1-users'), match_querystring=True)
     httpretty.register_uri(
-        post, r(r'/v1/users$'),
+        post, r(r'/users$'),
         body=fixture('v1-user'), match_querystring=True)
     httpretty.register_uri(
-        put, r(r'/v1/users$'),
+        put, r(r'/users$'),
         body=request_callback, match_querystring=True)
     httpretty.register_uri(
-        delete, r(r'/v1/users$'),
+        delete, r(r'/users$'),
         body=fixture('v1-user'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=somebody"),
+        get, r(r"/users\?email=somebody"),
         body=fixture('v1-user'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users\?user_id=123"),
+        get, r(r"/users\?user_id=123"),
         body=fixture('v1-user'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=not-found"),
+        get, r(r"/users\?email=not-found"),
         status=404, match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=server-error"),
+        get, r(r"/users\?email=server-error"),
         status=500, match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users\?email=authentication-error"),
+        get, r(r"/users\?email=authentication-error"),
         status=401, match_querystring=True)
 
     httpretty.register_uri(
-        get, r(r"/v1/tags\?name=Free"),
+        get, r(r"/tags\?name=Free"),
         body=fixture('v1-tag'))
     httpretty.register_uri(
-        get, r(r"/v1/tags"),
+        get, r(r"/tags"),
         body=fixture('v1-tag'))
     httpretty.register_uri(
-        post, r(r"/v1/tags"),
+        post, r(r"/tags"),
         body=fixture('v1-tag'))
     httpretty.register_uri(
-        put, r(r"/v1/tags"),
+        put, r(r"/tags"),
         body=fixture('v1-tag'))
 
     httpretty.register_uri(
-        post, r(r"/v1/users/notes"),
+        post, r(r"/users/notes"),
         body=fixture('v1-users-note'))
 
     httpretty.register_uri(
-        get, r(r'/v1/users/message_threads$'),
+        get, r(r'/users/message_threads$'),
         body=fixture('v1-users-message_threads'), match_querystring=True)
     httpretty.register_uri(
-        post, r(r'/v1/users/message_threads$'),
+        post, r(r'/users/message_threads$'),
         body=fixture('v1-users-message_thread'), match_querystring=True)
     httpretty.register_uri(
-        put, r(r'/v1/users/message_threads$'),
+        put, r(r'/users/message_threads$'),
         body=fixture('v1-users-message_thread'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users/message_threads\?thread_id=5591"),
+        get, r(r"/users/message_threads\?thread_id=5591"),
         body=fixture('v1-users-message_thread'), match_querystring=True)
     httpretty.register_uri(
-        get, r(r"/v1/users/message_threads\?email=somebody"),
+        get, r(r"/users/message_threads\?email=somebody"),
         body=fixture('v1-users-message_threads'), match_querystring=True)
 
     httpretty.register_uri(
-        post, r(r"/v1/users/impressions"),
+        post, r(r"/users/impressions"),
         body=fixture('v1-users-impressions'))
 
     (failure_count, test_count) = doctest.testfile(

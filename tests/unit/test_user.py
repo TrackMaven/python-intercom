@@ -6,7 +6,7 @@
 #
 
 from datetime import datetime
-from intercom.user import CustomData
+from intercom.user import CustomAttributes
 from intercom.user import LocationData
 from intercom.user import SocialProfile
 from intercom.user import User
@@ -17,64 +17,64 @@ from nose.tools import raises
 
 def test_init_no_arg():
     # no arg __init__
-    custom_data = CustomData()
-    eq_(0, len(custom_data))
+    custom_attributes = CustomAttributes()
+    eq_(0, len(custom_attributes))
 
 
 def test_init_dict_arg():
     # dict arg __init__
-    custom_data = CustomData({'color': 'red'})
-    eq_(1, len(custom_data))
+    custom_attributes = CustomAttributes({'color': 'red'})
+    eq_(1, len(custom_attributes))
 
 
 def test_string_key():
     # string keys are allowed
-    custom_data = CustomData()
-    custom_data['a'] = 'b'
+    custom_attributes = CustomAttributes()
+    custom_attributes['a'] = 'b'
 
 
 @raises(ValueError)
 def test_numeric_key():
     # numeric keys are not allowed
-    custom_data = CustomData()
-    custom_data[1] = 'a'
+    custom_attributes = CustomAttributes()
+    custom_attributes[1] = 'a'
 
 
 @raises(ValueError)
 def test_dict_key():
     # dict keys are not allowed
-    custom_data = CustomData()
-    custom_data[{'a': 'b'}] = 'c'
+    custom_attributes = CustomAttributes()
+    custom_attributes[{'a': 'b'}] = 'c'
 
 
 def test_numeric_values():
     # numeric values are allowed
-    custom_data = CustomData()
-    custom_data['a'] = 1
-    custom_data['b'] = 3.14
-    custom_data['c'] = 0177
-    custom_data['d'] = 0x7F
+    custom_attributes = CustomAttributes()
+    custom_attributes['a'] = 1
+    custom_attributes['b'] = 3.14
+    custom_attributes['c'] = 0177
+    custom_attributes['d'] = 0x7F
 
 
 @raises(ValueError)
 def test_complex_number_values():
     # complex numeber values are allowed
-    custom_data = CustomData()
-    custom_data['a'] = complex(1.0, 0.2)
+    custom_attributes = CustomAttributes()
+    custom_attributes['a'] = complex(1.0, 0.2)
 
 
 @raises(ValueError)
 def test_dict_value():
     # dict values are not allowed
-    custom_data = CustomData()
-    custom_data['a'] = {'b': 'c'}
+    custom_attributes = CustomAttributes()
+    custom_attributes['a'] = {'b': 'c'}
 
 
 @raises(ValueError)
 def test_list_value():
     # list values are not allowed
-    custom_data = CustomData()
-    custom_data['a'] = ['b', 'c']
+    custom_attributes = CustomAttributes()
+    custom_attributes['a'] = ['b', 'c']
 
 
 def test_attr():
@@ -113,7 +113,7 @@ def test_user_properties():
     user.last_impression_at = last_impression_at
     user.created_at = created_at
     user.unsubscribed_from_emails = True
-    user.custom_data = {'name': 'Ace'}
+    user.custom_attributes = {'name': 'Ace'}
     user.companies = [{
         'id': 1,
         'name': 'Intercom',
@@ -135,7 +135,7 @@ def test_user_properties():
     eq_(user.relationship_score, None)
     eq_(user.created_at, created_at)
     eq_(user.unsubscribed_from_emails, True)
-    eq_(user.custom_data['name'], 'Ace')
+    eq_(user.custom_attributes['name'], 'Ace')
     eq_(user.session_count, 0)
     raises(AttributeError, lambda: user.companies)
 

@@ -89,8 +89,7 @@ class Intercom(object):
 
     app_id = None
     api_key = None
-    api_version = 1
-    api_endpoint = 'https://api.intercom.io/v' + str(api_version) + '/'
+    api_endpoint = 'https://api.intercom.io/'
     timeout = DEFAULT_TIMEOUT
 
     @classmethod
@@ -188,7 +187,7 @@ class Intercom(object):
         - ``name``: The user's full name
         - ``created_at``: A UNIX timestamp representing the date the user was
           created
-        - ``custom_data``: A hash of key/value pairs containing any other data
+        - ``custom_attributes``: A hash of key/value pairs containing any other data
           about the user you want Intercom to store.
         - ``last_seen_ip``: An ip address (e.g. "1.2.3.4") representing the
           last ip address the user visited your application from. (Used for
@@ -206,10 +205,10 @@ class Intercom(object):
         >>> user = Intercom.create_user(user_id='7902',
         ... email='ben@intercom.io',
         ... name='Somebody', created_at=1270000000, last_seen_ip='1.2.3.4',
-        ... custom_data={ 'app_name': 'Genesis'}, last_request_at=1300000000)
+        ... custom_attributes={ 'app_name': 'Genesis'}, last_request_at=1300000000)
         >>> user['name']
         u'Somebody'
-        >>> user['custom_data']['app_name']
+        >>> user['custom_attributes']['app_name']
         u'Genesis'
         >>> user['last_impression_at']
         1300000000
@@ -249,29 +248,6 @@ class Intercom(object):
         return user_dict
 
     @classmethod
-    def create_impression(
-            cls, user_id=None, email=None, user_ip=None,
-            user_agent=None, location=None):
-        """ Create an impression.
-
-        >>> result = Intercom.create_impression(email="somebody@example.com",
-        ... user_agent="MyApp/1.0", user_ip="2.3.4.5")
-        >>> result['unread_messages']
-        1
-
-        """
-        params = {
-            'email': email,
-            'user_id': user_id,
-            'user_ip': user_ip,
-            'user_agent': user_agent,
-            'location': location
-        }
-        user_dict = Intercom._call(
-            'POST', Intercom.api_endpoint + 'users/impressions', params=params)
-        return user_dict
-
-    @classmethod
     def create_note(cls, user_id=None, email=None, body=None):
         """ Create a note.
 
@@ -293,7 +269,8 @@ class Intercom(object):
         return user_dict
 
     @classmethod
-    def get_message_threads(cls, user_id=None, email=None, thread_id=None):
+    def list_conversations(cls, conversation_type=None, admin_id=None,
+                           user_id=None, email=None, thread_id=None):
         """ If a thread_id is specified, this returns a specific MessageThread
         (if it can find one), otherwise it returns all MessageThreads for the
         particular user.
@@ -309,17 +286,19 @@ class Intercom(object):
 
         """
         params = {
+            'type': conversation_type,
             'email': email,
+            'admin_id': admin_id,
             'user_id': user_id,
             'thread_id': thread_id
         }
         msg_dict = Intercom._call(
-            'GET', Intercom.api_endpoint + 'users/message_threads',
+            'GET', Intercom.api_endpoint + 'conversations',
             params=params)
         return msg_dict
 
     @classmethod
-    def create_message_thread(cls, user_id=None, email=None, body=None):
+    def create_conversation(cls, user_id=None, email=None, body=None):
         """ Create a MessageThread.
 
         >>> message_thread = Intercom.create_message_thread(
@@ -445,7 +424,8 @@ class Intercom(object):
         return tag_dict
 
     @classmethod
-    def create_event(cls, event_name=None, user_id=None, email=None, metadata=None):
+    def create_event(cls, event_name=None, user_id=None, email=None,
+                     metadata=None):
         """
         Create an event
         """
@@ -453,12 +433,12 @@ class Intercom(object):
             'event_name': event_name,
             'user_id': user_id,
             'email': email,
-            'created': int(time.time()) 
-         }
+            'created': int(time.time())
+        }
 
         if isinstance(metadata, dict):
             params['metadata'] = metadata
 
         call = Intercom._call(
-             'POST', Intercom.api_endpoint + 'events', params=params)
+            'POST', Intercom.api_endpoint + 'events', params=params)
         return call

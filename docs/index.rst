@@ -25,7 +25,8 @@ Usage
 Authentication
 ---------------
 
-Intercom documentation: `Authentication <http://doc.intercom.io/api/v1/#authentication>`_.
+Intercom documentation: `Authorization
+<http://doc.intercom.io/api/#authorization>`_.
 
 ::
 
@@ -36,10 +37,11 @@ Intercom documentation: `Authentication <http://doc.intercom.io/api/v1/#authenti
 Users
 -----
 
-Getting all Users
+Get All Users
 +++++++++++++++++
 
-Intercom documentation: `Getting all Users <http://doc.intercom.io/api/v1/#getting-all-users>`_.
+Intercom documentation: `List Users
+<http://doc.intercom.io/api/#list-users>`_.
 
 ::
 
@@ -47,10 +49,11 @@ Intercom documentation: `Getting all Users <http://doc.intercom.io/api/v1/#getti
     for user in User.all():
         print user.email
 
-Getting a User
+View a User
 ++++++++++++++
 
-Intercom documentation: `Getting a User <http://doc.intercom.io/api/v1/#getting-a-user>`_.
+Intercom documentation: `View a User
+<http://doc.intercom.io/api/#view-a-user>`_.
 
 ::
 
@@ -59,7 +62,8 @@ Intercom documentation: `Getting a User <http://doc.intercom.io/api/v1/#getting-
 Create a User
 +++++++++++++
 
-Intercom documentation: `Create a User <http://doc.intercom.io/api/v1/#create-a-user>`_.
+Intercom documentation: `Create or Update User
+<http://doc.intercom.io/api/#create-or-update-user>`_.
 
 ::
 
@@ -74,7 +78,8 @@ Intercom documentation: `Create a User <http://doc.intercom.io/api/v1/#create-a-
 Updating a User
 +++++++++++++++
 
-Intercom documentation: `Updating a User <http://doc.intercom.io/api/v1/#updating-a-user>`_.
+Intercom documentation: `Create or Update User
+<http://doc.intercom.io/api/#create-or-update-user>`_.
 
 ::
 
@@ -82,10 +87,11 @@ Intercom documentation: `Updating a User <http://doc.intercom.io/api/v1/#updatin
     user.name = "Benjamin McRedmond"
     user.save()
 
-Deleting a User
+Delete a User
 +++++++++++++++
 
-Intercom documentation: `Deleting a User <http://doc.intercom.io/api/v1/#deleting-a-user>`_.
+Intercom documentation: `Delete a user
+<http://doc.intercom.io/api/#delete-a-user>`_.
 
 ::
 
@@ -94,10 +100,11 @@ Intercom documentation: `Deleting a User <http://doc.intercom.io/api/v1/#deletin
 Notes
 -----
 
-Creating a Note
+Create a Note
 +++++++++++++++
 
-Intercom documentation: `Creating a Note <http://doc.intercom.io/api/v1/#creating-a-note>`_.
+Intercom documentation: `Create a Note
+<http://doc.intercom.io/api/#create-a-note>`_.
 
 ::
 
@@ -109,10 +116,11 @@ Intercom documentation: `Creating a Note <http://doc.intercom.io/api/v1/#creatin
 Tagging
 -------
 
-Getting a Tag
+List Tags
 +++++++++++++
 
-Intercom documentation: `Getting a Tag <http://doc.intercom.io/api/v1/#getting-a-tag>`_.
+Intercom documentation: `List Tags
+<http://doc.intercom.io/api/#list-tags-for-an-app>`_.
 
 ::
 
@@ -122,7 +130,8 @@ Intercom documentation: `Getting a Tag <http://doc.intercom.io/api/v1/#getting-a
 Creating a new Tag
 ++++++++++++++++++
 
-Intercom documentation: `Creating a new Tag <http://doc.intercom.io/api/v1/#create-a-new-tag>`_.
+Intercom documentation: `Creating and Update Tags
+<http://doc.intercom.io/api/#create-and-update-tags>`_.
 
 ::
 
@@ -132,7 +141,8 @@ Intercom documentation: `Creating a new Tag <http://doc.intercom.io/api/v1/#crea
 Updating an already existing Tag
 ++++++++++++++++++++++++++++++++
 
-Intercom documentation: `Updating a Tag <http://doc.intercom.io/api/v1/#update-an-already-existing-tag>`_.
+Intercom documentation: `Create and Update Tags
+<http://doc.intercom.io/api/#create-and-update-tags>`_.
 
 ::
 
@@ -140,28 +150,14 @@ Intercom documentation: `Updating a Tag <http://doc.intercom.io/api/v1/#update-a
     tag = Tag.update("Free Trial", "tag",
         user_ids=["abc123", "def456"])
 
-
-Impressions
------------
-
-Creating an Impression
-++++++++++++++++++++++
-
-Intercom documentation: `Creating an Impression <http://doc.intercom.io/api/v1/#creating-an-impression>`_.
-
-::
-
-    from intercom import Impression
-    impression = Impression.create(email="ben@intercom.io", 
-            user_agent="my-awesome-android-app-v0.0.1")
-
-Message Threads
+Conversations
 ---------------
 
-Getting Message Threads
+List Conversations
 +++++++++++++++++++++++
 
-Intercom documentation:  `Getting Message Threads <http://doc.intercom.io/api/v1/#getting-message-threads>`_.
+Intercom documentation:  `List Conversations
+<http://doc.intercom.io/api/#list-conversations>`_.
 
 ::
 
@@ -174,20 +170,41 @@ Intercom documentation:  `Getting Message Threads <http://doc.intercom.io/api/v1
     message_threads = MessageThread.find_all(email="ben@intercom.io",
             thread_id=123)
 
-Creating a Message Thread
+Get a Single Conversation
 +++++++++++++++++++++++++
 
-Intercom documentation:  `Creating a Message Thread <http://doc.intercom.io/api/v1/#creating-a-message-thread>`_.
+Intercom documentation:  `Get a Single Conversation
+<http://doc.intercom.io/api/#get-a-single-conversation>`_.
+
+
+Admin Initiated Conversation
++++++++++++++++++++++++++
+
+Intercom documentation:  `Admin Initiated Conversation
+<http://doc.intercom.io/api/#admin-initiated-conversation>`_.
 
 ::
 
     message_thread = MessageThread.create(email="ben@intercom.io", 
             body="Hey Intercom, What is up?")
 
-Replying on a Message Thread
+User Initiated Conversation
++++++++++++++++++++++++++
+
+Intercom documentation:  `User Initiated Conversation
+<http://doc.intercom.io/api/#user-initiated-conversation>`_.
+
+::
+
+    message_thread = MessageThread.create(email="ben@intercom.io", 
+            body="Hey Intercom, What is up?")
+
+
+Replying to a Conversation
 ++++++++++++++++++++++++++++
 
-Intercom documentation:  `Replying on a Message Thread <http://doc.intercom.io/api/v1/#replying-on-a-message-thread>`_.
+Intercom documentation:  `Replying to a Conversation
+<http://doc.intercom.io/api/#replying-to-a-conversation>`_.
 
 ::
 
@@ -201,7 +218,8 @@ Events
 Submitting Events
 +++++++++++++++++
 
-Intercom documentation: `Submitting Events <http://doc.intercom.io/api/v1/#submitting-events>`_.
+Intercom documentation: `Submitting Events
+<http://doc.intercom.io/api/#submitting-events>`_.
 
 ::
 
